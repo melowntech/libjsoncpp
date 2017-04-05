@@ -10,5 +10,13 @@
 
 #include <json/json.h>
 
+namespace Json {
+
+/** For compatibility.
+ */
+typedef Exception Error;
+
+} // namespace Json
+
 #endif // jsoncpp_json_hpp_included_
 
