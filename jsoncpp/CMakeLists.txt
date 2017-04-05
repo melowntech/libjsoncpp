@@ -1,7 +1,7 @@
 #dump_variables()
 
 # bump version here
-set(jsoncpp_VERSION 1.2)
+set(jsoncpp_VERSION 2.0)
 
 message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
 
