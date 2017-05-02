@@ -36,7 +36,7 @@ void write(std::ostream &os, const Value &value)
 {
     StreamWriterBuilder builder;
     builder["commentStyle"] = "None";
-    builder["indentation"] = "   ";
+    builder["indentation"] = "\t";
     std::unique_ptr<StreamWriter> writer(builder.newStreamWriter());
     writer->write(value, &os);
 }

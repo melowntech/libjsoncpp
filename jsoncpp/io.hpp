@@ -31,30 +31,47 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include "dbglog/dbglog.hpp"
+
 #include "json.hpp"
 
 namespace Json {
 
 template <typename ExceptionType = RuntimeError>
-Value read(std::istream &is, const boost::filesystem::path &path = "UNKNOWN");
+Value read(std::istream &is, const boost::filesystem::path &path = "UNKNOWN"
+           , const std::string &what = "");
+
+bool read(std::istream &is, Value &value);
 
 void write(std::ostream &os, const Value &value);
 
 // inlines
 
 template <typename ExceptionType = Exception>
-Value read(std::istream &is, const boost::filesystem::path &path)
+Value read(std::istream &is, const boost::filesystem::path &path
+           , const std::string &what)
 {
     std::string err;
     Value root;
     if (!parseFromStream(CharReaderBuilder(), is, &root, &err)) {
-        LOGTHROW(err2, ExceptionType)
-            << "Unable to read JSON from file " << path
-            << ": <" << err << ">.";
+        if (what.empty()) {
+            LOGTHROW(err2, ExceptionType)
+                << "Unable to read JSON from file " << path
+                << ": <" << err << ">.";
+        } else {
+            LOGTHROW(err2, ExceptionType)
+                << "Unable to read " << what << " from file " << path
+                << ": <" << err << ">.";
+        }
     }
     return root;
 }
 
+inline bool read(std::istream &is, Value &value)
+{
+    std::string err;
+    return parseFromStream(CharReaderBuilder(), is, &value, &err);
+}
 
 } // namespace Json
 
