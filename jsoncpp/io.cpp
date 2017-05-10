@@ -39,6 +39,7 @@ void write(std::ostream &os, const Value &value)
     builder["indentation"] = "\t";
     std::unique_ptr<StreamWriter> writer(builder.newStreamWriter());
     writer->write(value, &os);
+    os << '\n';
 }
 
 } // namespace Json
