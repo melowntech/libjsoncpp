@@ -5,7 +5,8 @@ set(jsoncpp_VERSION 2.1)
 
 define_module(LIBRARY jsoncpp=${jsoncpp_VERSION}
   DEPENDS utility>=1.11
-  JSONCPP)
+  JSONCPP
+  Boost)
 
 set(jsoncpp_SOURCES
   as.hpp

@@ -35,6 +35,8 @@
 
 #include <type_traits>
 
+#include <boost/lexical_cast.hpp>
+
 #include "dbglog/dbglog.hpp"
 #include "utility/raise.hpp"
 
@@ -52,7 +54,7 @@ asArithmetic(const Value &v)
 }
 
 template <typename T>
-inline typename std::enable_if<std::is_unsigned<T>::value, T>::type
+typename std::enable_if<std::is_unsigned<T>::value, T>::type
 asArithmetic(const Value &v) {
     return v.asLargestUInt();
 }
@@ -67,15 +69,8 @@ inline void throwError(const char *type, const char *name)
     utility::raise<RuntimeError>("Stored value is not %s value", type);
 }
 
-} // namespace detail
-
-template <typename T, typename Enable = void>
-T as(const Value&, const char *name = nullptr);
-
-template
-<typename T
- , typename = typename std::enable_if<std::is_integral<T>::value>::type>
-inline T as(const Value &v, const char *name)
+template <typename T>
+T asIntegral(const Value &v, const char *name)
 {
     if (!v.isIntegral()) {
         detail::throwError("an integral", name);
@@ -84,7 +79,26 @@ inline T as(const Value &v, const char *name)
 }
 
 template <>
-inline float as<float, void>(const Value &v, const char *name)
+inline bool asIntegral<bool>(const Value &v, const char *name)
+{
+    if (!v.isBool()) {
+        detail::throwError("a boolean", name);
+    }
+    return v.asBool();
+}
+
+} // namespace detail
+
+template <typename T>
+typename std::enable_if<std::is_integral<T>::value, T>::type
+as(const Value &v, const char *name = nullptr)
+{
+    return detail::asIntegral<T>(v, name);
+}
+
+template <typename T>
+typename std::enable_if<std::is_same<float, T>::value, T>::type
+as(const Value &v, const char *name = nullptr)
 {
     if (!v.isDouble()) {
         detail::throwError("a real", name);
@@ -92,8 +106,9 @@ inline float as<float, void>(const Value &v, const char *name)
     return v.asFloat();
 }
 
-template <>
-inline double as<double, void>(const Value &v, const char *name)
+template <typename T>
+typename std::enable_if<std::is_same<double, T>::value, T>::type
+as(const Value &v, const char *name = nullptr)
 {
     if (!v.isDouble()) {
         detail::throwError("a real", name);
@@ -101,9 +116,9 @@ inline double as<double, void>(const Value &v, const char *name)
     return v.asDouble();
 }
 
-template <>
-inline std::string as<std::string, void>(const Value &v
-                                         , const char *name)
+template <typename T>
+typename std::enable_if<std::is_same<std::string, T>::value, T>::type
+as(const Value &v, const char *name = nullptr)
 {
     if (!v.isString()) {
         detail::throwError("a string", name);
@@ -111,13 +126,14 @@ inline std::string as<std::string, void>(const Value &v
     return v.asString();
 }
 
-template <>
-inline bool as<bool, void>(const Value &v, const char *name)
+template <typename T>
+typename std::enable_if<std::is_enum<T>::value, T>::type
+as(const Value &v, const char *name = nullptr)
 {
-    if (!v.isBool()) {
-        detail::throwError("a boolean", name);
+    if (!v.isString()) {
+        detail::throwError("an string", name);
     }
-    return v.asBool();
+    return boost::lexical_cast<T>(v.asString());
 }
 
 template <typename T>
@@ -137,6 +153,17 @@ inline T& get(T &dest, const Json::Value &object, const char *member)
     return (dest = as<T>
             (object[member]
              , utility::formatError("object[%s]", member).c_str()));
+}
+
+template <typename T>
+inline bool getOpt(T &dest, const Json::Value &object, const char *member)
+{
+    if (!object.isMember(member)) { return false; }
+
+    dest = as<T>
+        (object[member]
+         , utility::formatError("object[%s]", member).c_str());
+    return true;
 }
 
 template <typename T>
