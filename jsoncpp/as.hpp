@@ -36,6 +36,7 @@
 #include <type_traits>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/optional.hpp>
 
 #include "dbglog/dbglog.hpp"
 #include "utility/raise.hpp"
@@ -164,6 +165,44 @@ inline bool getOpt(T &dest, const Json::Value &object, const char *member)
         (object[member]
          , utility::formatError("object[%s]", member).c_str());
     return true;
+}
+
+template <typename T>
+inline boost::optional<T>&
+get(boost::optional<T> &dest, const Json::Value &object, const char *member)
+{
+    if (!object.isMember(member)) {
+        return dest;
+    }
+
+    return (dest = as<T>
+            (object[member]
+             , utility::formatError("object[%s]", member).c_str()));
+}
+
+template <typename T>
+inline std::vector<T>&
+get(std::vector<T> &dest, const Json::Value &object, const char *member)
+{
+    if (!object.isMember(member)) {
+        LOGTHROW(err1, RuntimeError)
+            << "Passed object doesn't have member <" << member << ">.";
+    }
+
+    const auto &list(object[member]);
+    if (!list.isArray()) {
+        LOGTHROW(err1, RuntimeError)
+            << "Member <" << member << "> is not an array.";
+    }
+
+    dest.clear();
+    for (const auto &item : list) {
+        dest.push_back
+            (as<T>
+             (item, utility::formatError("object[%s][i]", member).c_str()));
+    }
+
+    return dest;
 }
 
 template <typename T>
