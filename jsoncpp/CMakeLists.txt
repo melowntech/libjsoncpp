@@ -1,7 +1,7 @@
 #dump_variables()
 
 # bump version here
-set(jsoncpp_VERSION 2.1)
+set(jsoncpp_VERSION 2.2)
 
 define_module(LIBRARY jsoncpp=${jsoncpp_VERSION}
   DEPENDS utility>=1.11
