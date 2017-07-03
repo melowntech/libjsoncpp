@@ -287,6 +287,45 @@ inline const Value& check(const Value &value, ValueType type
     return value;
 }
 
+struct Null_t {};
+const Null_t Null;
+
+inline Value& check(const Null_t&, Value &value, ValueType type)
+{
+    if ((value.type() != type) && !value.isNull())  {
+        throw RuntimeError("Invalid type.");
+    }
+    return value;
+}
+
+inline Value& check(const Null_t&, Value &value, ValueType type
+                    , const char *what)
+{
+    if ((value.type() != type) && !value.isNull())  {
+        throw RuntimeError
+            (utility::formatError("Invalid type of \"%s\".", what));
+    }
+    return value;
+}
+
+inline const Value& check(const Null_t&, const Value &value, ValueType type)
+{
+    if ((value.type() != type) && !value.isNull())  {
+        throw RuntimeError("Invalid type.");
+    }
+    return value;
+}
+
+inline const Value& check(const Null_t&, const Value &value, ValueType type
+                          , const char *what)
+{
+    if ((value.type() != type) && !value.isNull())  {
+        throw RuntimeError
+            (utility::formatError("Invalid type of \"%s\".", what));
+    }
+    return value;
+}
+
 } // namespace Json
 
 #endif // jsoncpp_as_hpp_included_
