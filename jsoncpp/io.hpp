@@ -47,7 +47,7 @@ void write(std::ostream &os, const Value &value);
 
 // inlines
 
-template <typename ExceptionType = Exception>
+template <typename ExceptionType>
 Value read(std::istream &is, const boost::filesystem::path &path
            , const std::string &what)
 {

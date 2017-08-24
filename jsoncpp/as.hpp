@@ -288,7 +288,7 @@ inline const Value& check(const Value &value, ValueType type
 }
 
 struct Null_t {};
-const Null_t Null;
+const Null_t Null{};
 
 inline Value& check(const Null_t&, Value &value, ValueType type)
 {
