@@ -43,7 +43,8 @@ Value read(std::istream &is, const boost::filesystem::path &path = "UNKNOWN"
 
 bool read(std::istream &is, Value &value);
 
-void write(std::ostream &os, const Value &value);
+void write(std::ostream &os, const Value &value
+           , bool humanReadable = true);
 
 // inlines
 

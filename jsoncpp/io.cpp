@@ -31,12 +31,13 @@
 
 namespace Json {
 
-void write(std::ostream &os, const Value &value)
+void write(std::ostream &os, const Value &value
+           , bool humanReadable)
 
 {
     StreamWriterBuilder builder;
     builder["commentStyle"] = "None";
-    builder["indentation"] = "\t";
+    builder["indentation"] = (humanReadable ? "\t" : "");
     std::unique_ptr<StreamWriter> writer(builder.newStreamWriter());
     writer->write(value, &os);
     os << '\n';
