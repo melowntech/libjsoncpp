@@ -206,6 +206,31 @@ get(std::vector<T> &dest, const Json::Value &object, const char *member)
 }
 
 template <typename T>
+inline std::set<T>&
+get(std::set<T> &dest, const Json::Value &object, const char *member)
+{
+    if (!object.isMember(member)) {
+        LOGTHROW(err1, RuntimeError)
+            << "Passed object doesn't have member <" << member << ">.";
+    }
+
+    const auto &list(object[member]);
+    if (!list.isArray()) {
+        LOGTHROW(err1, RuntimeError)
+            << "Member <" << member << "> is not an array.";
+    }
+
+    dest.clear();
+    for (const auto &item : list) {
+        dest.insert
+            (as<T>
+             (item, utility::formatError("object[%s][i]", member).c_str()));
+    }
+
+    return dest;
+}
+
+template <typename T>
 inline T& get(T &dest, const Json::Value &list
               , Json::ArrayIndex index, const char *name = "unknown")
 {
