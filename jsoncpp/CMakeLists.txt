@@ -3,9 +3,15 @@
 # bump version here
 set(jsoncpp_VERSION 2.3)
 
+if(WIN32)
+  set(JSONCPP_LIB_TARGET jsoncpp_lib_static)
+else()
+  set(JSONCPP_LIB_TARGET jsoncpp_lib)
+endif()
+
 define_module(LIBRARY jsoncpp=${jsoncpp_VERSION}
   DEPENDS utility>=1.11
-  JSONCPP
+  ${JSONCPP_LIB_TARGET}
   Boost)
 
 set(jsoncpp_SOURCES
