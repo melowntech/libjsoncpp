@@ -51,13 +51,13 @@ template <typename T>
 inline typename std::enable_if<std::is_signed<T>::value, T>::type
 asArithmetic(const Value &v)
 {
-    return v.asLargestInt();
+    return T(v.asLargestInt());
 }
 
 template <typename T>
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 asArithmetic(const Value &v) {
-    return v.asLargestUInt();
+    return T(v.asLargestUInt());
 }
 
 inline void throwError(const char *type, const char *name)
