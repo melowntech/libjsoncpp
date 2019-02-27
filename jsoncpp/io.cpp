@@ -27,7 +27,7 @@
 #include "dbglog/dbglog.hpp"
 #include "utility/raise.hpp"
 
-#include "./io.hpp"
+#include "io.hpp"
 
 namespace Json {
 
