@@ -40,6 +40,7 @@
 
 #include "dbglog/dbglog.hpp"
 #include "utility/raise.hpp"
+#include "utility/streams.hpp"
 
 #include "json.hpp"
 
@@ -165,6 +166,20 @@ inline bool getOpt(T &dest, const Json::Value &object, const char *member)
         (object[member]
          , utility::formatError("object[%s]", member).c_str());
     return true;
+}
+
+template <typename T>
+inline T& get(T &dest, const Json::Value &object
+              , const std::initializer_list<const char*> &members)
+{
+    for (const auto &member : members) {
+        if (getOpt(dest, object, member)) { return dest; }
+    }
+
+    LOGTHROW(err1, RuntimeError)
+        << "Passed object doesn't have any member of <"
+        << utility::join(members, ", ") << ">.";
+    throw;
 }
 
 template <typename T>
