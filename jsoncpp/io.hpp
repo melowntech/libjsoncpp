@@ -46,6 +46,14 @@ bool read(std::istream &is, Value &value);
 void write(std::ostream &os, const Value &value
            , bool humanReadable = true);
 
+// Logging helper
+namespace detail {
+struct JsonLogger;
+std::ostream& operator<<(std::ostream &os, const JsonLogger &log);
+} // namespace detail
+
+detail::JsonLogger log(const Json::Value &value, bool humanReadable = true);
+
 // inlines
 
 template <typename ExceptionType>
@@ -72,6 +80,25 @@ inline bool read(std::istream &is, Value &value)
 {
     std::string err;
     return parseFromStream(CharReaderBuilder(), is, &value, &err);
+}
+
+namespace detail {
+struct JsonLogger {
+    const Json::Value &value;
+    bool humanReadable;
+};
+
+inline std::ostream&
+operator<<(std::ostream &os, const detail::JsonLogger &log)
+{
+    write(os, log.value, log.humanReadable);
+    return os;
+}
+
+} // namespace detail
+
+inline detail::JsonLogger log(const Json::Value &value, bool humanReadable) {
+    return { value, humanReadable };
 }
 
 } // namespace Json
