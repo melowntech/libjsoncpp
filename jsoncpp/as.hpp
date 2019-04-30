@@ -34,6 +34,9 @@
 #define jsoncpp_as_hpp_included_
 
 #include <type_traits>
+#include <array>
+#include <vector>
+#include <set>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
@@ -245,6 +248,36 @@ get(std::set<T> &dest, const Json::Value &object, const char *member)
     return dest;
 }
 
+template <typename T, std::size_t N>
+inline std::array<T, N>&
+get(std::array<T, N> &dest, const Json::Value &object, const char *member)
+{
+    if (!object.isMember(member)) {
+        LOGTHROW(err1, RuntimeError)
+            << "Passed object doesn't have member <" << member << ">.";
+    }
+
+    const auto &list(object[member]);
+    if (!list.isArray()) {
+        LOGTHROW(err1, RuntimeError)
+            << "Member <" << member << "> is not an array.";
+    }
+
+    if (list.size() != N) {
+        LOGTHROW(err1, RuntimeError)
+            << "Member <" << member << "> is an array of different size.";
+    }
+
+    auto idest(dest.begin());
+    for (const auto &item : list) {
+        *idest++ =
+            (as<T>
+             (item, utility::formatError("object[%s][i]", member).c_str()));
+    }
+
+    return dest;
+}
+
 template <typename T>
 inline T& get(T &dest, const Json::Value &list
               , Json::ArrayIndex index, const char *name = "unknown")
@@ -292,6 +325,62 @@ inline T& get(T &dest, const Json::Value &object, const char *member
              .c_str()));
 }
 
+namespace detail {
+
+template <typename T>
+void unpack(const Json::Value &list, const char *name
+             , Json::ArrayIndex index, T &item)
+{
+    item = as<T>(list[index], name);
+}
+
+template <typename T, typename ...Args>
+void unpack(const Json::Value &list, const char *name
+             , Json::ArrayIndex index, T &item, Args &&...rest)
+{
+    unpack(list, name, index, item);
+    unpack(list, name, index + 1, std::forward<Args>(rest)...);
+}
+
+template <typename T>
+void pack(Json::Value &list, const T &item)
+{
+    list.append(json(item));
+}
+
+template <typename T, typename ...Args>
+void pack(const Json::Value &list, const char *name
+             , Json::ArrayIndex index, T &item, Args &&...rest)
+{
+    pack(list, item);
+    unpack(list, std::forward<Args>(rest)...);
+}
+
+} // namespace detail
+
+template <typename ...Args>
+void unpack(const Json::Value &list, const char *name, Args &&...args)
+{
+    if (!list.isArray()) {
+        LOGTHROW(err1, RuntimeError) << name << "is not an array.";
+    }
+
+    if (sizeof...(args) > list.size()) {
+        LOGTHROW(err1, RuntimeError)
+            << "Too few items in array " << name << "to expand.";
+    }
+
+    detail::unpack(list, name, 0, std::forward<Args>(args)...);
+}
+
+template <typename ...Args>
+void pack(Json::Value &list, Args &&...args)
+{
+    list = Json::arrayValue;
+
+    detail::pack(list, std::forward<Args>(args)...);
+}
+
 inline Value& check(Value &value, ValueType type)
 {
     if (value.type() != type) {
@@ -325,6 +414,73 @@ inline const Value& check(const Value &value, ValueType type
             (utility::formatError("Invalid type of \"%s\".", what));
     }
     return value;
+}
+
+inline Value& check(Value &value, const char *member, ValueType type)
+{
+    if (!value.isMember(member)) {
+        throw RuntimeError
+            (utility::formatError
+             ("Passed object has no member \"%s\".", member));
+    }
+    auto &v(value[member]);
+    if (v.type() != type) {
+        throw RuntimeError
+            (utility::formatError
+             ("Invalid type of member \"%s\".", member));
+    }
+    return v;
+}
+
+inline Value& check(Value &value, const char *member, ValueType type
+                    , const char *what)
+{
+    if (!value.isMember(member)) {
+        throw RuntimeError
+            (utility::formatError
+             ("Member %s[%s] does not exist.", what, member));
+    }
+    auto &v(value[member]);
+    if (v.type() != type) {
+        throw RuntimeError
+            (utility::formatError
+             ("Invalid type of %s[%s].", what, member));
+    }
+    return v;
+}
+
+inline const Value& check(const Value &value, const char *member
+                          , ValueType type)
+{
+    if (!value.isMember(member)) {
+        throw RuntimeError
+            (utility::formatError
+             ("Passed object has no member \"%s\".", member));
+    }
+    const auto &v(value[member]);
+    if (v.type() != type) {
+        throw RuntimeError
+            (utility::formatError
+             ("Invalid type of member \"%s\".", member));
+    }
+    return v;
+}
+
+inline const Value& check(const Value &value, const char *member
+                          , ValueType type, const char *what)
+{
+    if (!value.isMember(member)) {
+        throw RuntimeError
+            (utility::formatError
+             ("Member %s[%s] does not exist.", what, member));
+    }
+    const auto &v(value[member]);
+    if (v.type() != type) {
+        throw RuntimeError
+            (utility::formatError
+             ("Invalid type of %s[%s].", what, member));
+    }
+    return v;
 }
 
 struct Null_t {};
