@@ -278,6 +278,15 @@ get(std::array<T, N> &dest, const Json::Value &object, const char *member)
     return dest;
 }
 
+template <typename T, std::size_t N>
+inline bool
+getOpt(std::array<T, N> &dest, const Json::Value &object, const char *member)
+{
+    if (!object.isMember(member)) { return false; }
+    get(dest, object, member);
+    return true;
+}
+
 template <typename T>
 inline T& get(T &dest, const Json::Value &list
               , Json::ArrayIndex index, const char *name = "unknown")
