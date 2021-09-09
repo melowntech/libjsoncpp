@@ -39,6 +39,7 @@
 #include <set>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/optional.hpp>
 
 #include "dbglog/dbglog.hpp"
@@ -529,6 +530,76 @@ inline const Value& check(const Null_t&, const Value &value, ValueType type
             (utility::formatError("Invalid type of \"%s\".", what));
     }
     return value;
+}
+
+template <>
+inline boost::filesystem::path& get(boost::filesystem::path &dest
+                                    , const Json::Value &object
+                                    , const char *member)
+{
+    std::string tmp;
+    get(tmp, object, member);
+    return dest = tmp;
+}
+
+template <>
+inline boost::optional<boost::filesystem::path>&
+get(boost::optional<boost::filesystem::path> &dest
+    , const Json::Value &object
+    , const char *member)
+{
+    if (!object.isMember(member)) {
+        return dest;
+    }
+
+    std::string tmp;
+    get(tmp, object, member);
+    return dest = tmp;
+}
+
+// unified setting support
+
+template <typename T>
+void set(const T &value, Json::Value &object, const char *member)
+{
+    object[member] = value;
+}
+
+template <>
+inline void set(const boost::filesystem::path &value, Json::Value &object
+         , const char *member)
+{
+    Json::set(value.string(), object, member);
+}
+
+inline void set(const long &value, Json::Value &object, const char *member)
+{
+    object[member] = Json::Int64(value);
+}
+
+inline void set(const unsigned long &value, Json::Value &object
+                , const char *member)
+{
+    object[member] = Json::UInt64(value);
+}
+
+template <typename T>
+void set(const boost::optional<T> &value, Json::Value &object
+         , const char *member)
+{
+    if (value) { Json::set(*value, object, member); }
+}
+
+template <typename T>
+void serialize(T &value, const Json::Value &object, const char *member)
+{
+    get(value, object, member);
+}
+
+template <typename T>
+void serialize(const T &value, Json::Value &object, const char *member)
+{
+    set(value, object, member);
 }
 
 } // namespace Json
