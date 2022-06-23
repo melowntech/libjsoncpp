@@ -1,10 +1,10 @@
 #dump_variables()
 
 # bump version here
-set(jsoncpp_VERSION 2.3)
+set(jsoncpp_VERSION 2.4)
 
 define_module(LIBRARY jsoncpp=${jsoncpp_VERSION}
-  DEPENDS utility>=1.11
+  DEPENDS utility>=1.41
   JSONCPP
   Boost)
 
@@ -16,7 +16,7 @@ set(jsoncpp_SOURCES
 
 add_library(jsoncpp STATIC ${jsoncpp_SOURCES})
 target_link_libraries(jsoncpp ${MODULE_LIBRARIES})
-buildsys_target_compile_definitions(jsoncpp ${MODULE_DEFINITIONS})
+target_compile_definitions(jsoncpp PRIVATE ${MODULE_DEFINITIONS})
 
 set_target_properties(jsoncpp PROPERTIES LINKER_LANGUAGE CXX)
 buildsys_library(jsoncpp)
