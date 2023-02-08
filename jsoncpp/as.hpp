@@ -569,7 +569,7 @@ template <>
 inline void set(const boost::filesystem::path &value, Json::Value &object
          , const char *member)
 {
-    Json::set(value.string(), object, member);
+    Json::set(value.generic_string(), object, member);
 }
 
 inline void set(const long &value, Json::Value &object, const char *member)
