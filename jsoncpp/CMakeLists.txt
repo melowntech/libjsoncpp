@@ -1,7 +1,7 @@
 #dump_variables()
 
 # bump version here
-set(jsoncpp_VERSION 2.4)
+set(jsoncpp_VERSION 2.5)
 
 define_module(LIBRARY jsoncpp=${jsoncpp_VERSION}
   DEPENDS BuildSystem>=1.15
