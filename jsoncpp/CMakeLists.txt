@@ -22,5 +22,5 @@ add_library(jsoncpp-ext STATIC ${jsoncpp_SOURCES})
 target_link_libraries(jsoncpp-ext ${MODULE_LIBRARIES})
 target_compile_definitions(jsoncpp-ext PRIVATE ${MODULE_DEFINITIONS})
 
-set_target_properties(jsoncpp-ext PROPERTIES LINKER_LANGUAGE CXX)
+# set_target_properties(jsoncpp-ext PROPERTIES LINKER_LANGUAGE CXX)
 buildsys_library(jsoncpp-ext)
