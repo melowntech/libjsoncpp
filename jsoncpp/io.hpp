@@ -28,6 +28,7 @@
 #define jsoncpp_io_hpp_included_
 
 #include <iostream>
+#include <filesystem>
 
 #include <boost/filesystem/path.hpp>
 
@@ -37,9 +38,10 @@
 
 namespace Json {
 
-template <typename ExceptionType = RuntimeError>
-Value read(std::istream &is, const boost::filesystem::path &path = "UNKNOWN"
-           , const std::string &what = "");
+template <typename ExceptionType = RuntimeError
+          , typename PathType = std::filesystem::path>
+Value read(std::istream &is, const PathType &path = "UNKNOWN"
+           , const std::string &what = {});
 
 bool read(std::istream &is, Value &value);
 
@@ -48,16 +50,18 @@ void write(std::ostream &os, const Value &value
 
 // Logging helper
 namespace detail {
+
 struct JsonLogger;
 std::ostream& operator<<(std::ostream &os, const JsonLogger &log);
+
 } // namespace detail
 
 detail::JsonLogger log(const Json::Value &value, bool humanReadable = true);
 
 // inlines
 
-template <typename ExceptionType>
-Value read(std::istream &is, const boost::filesystem::path &path
+template <typename ExceptionType, typename PathType>
+Value read(std::istream &is, const PathType &path
            , const std::string &what)
 {
     std::string err;
