@@ -54,9 +54,6 @@ namespace detail {
 struct JsonLogger;
 std::ostream& operator<<(std::ostream &os, const JsonLogger &log);
 
-template <typename ExceptionType, typename PathType>
-Value read(std::istream &is, const PathType &path, const std::string &what);
-
 } // namespace detail
 
 detail::JsonLogger log(const Json::Value &value, bool humanReadable = true);
