@@ -359,8 +359,8 @@ void pack(Json::Value &list, const T &item)
 }
 
 template <typename T, typename ...Args>
-void pack(const Json::Value &list, const char *name
-             , Json::ArrayIndex index, T &item, Args &&...rest)
+void pack(const Json::Value &list, [[maybe_unused]] const char *name
+             , [[maybe_unused]] Json::ArrayIndex index, T &item, Args &&...rest)
 {
     pack(list, item);
     unpack(list, std::forward<Args>(rest)...);
