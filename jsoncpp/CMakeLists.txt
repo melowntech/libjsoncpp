@@ -16,6 +16,8 @@ set(jsoncpp_SOURCES
   as.hpp
   json.hpp
   io.hpp io.cpp
+
+  cmdline.hpp cmdline.cpp
 )
 
 add_library(jsoncpp-ext STATIC ${jsoncpp_SOURCES})
